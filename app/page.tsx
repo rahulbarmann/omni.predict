@@ -4,6 +4,8 @@ import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { motion } from "framer-motion";
+import { Particles } from "./Particles";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,19 +19,31 @@ const colors = {
 const GridItem = ({
     children,
     className = "",
+    delay = 0,
 }: {
     children: React.ReactNode;
     className?: string;
+    delay?: number;
 }) => (
-    <div
-        className={`p-4 border border-white hover:bg-white hover:text-black transition-all duration-300 ${className}`}
+    <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay }}
+        className={`p-4 border border-white rounded-lg hover:bg-white hover:text-black transition-all duration-300 ${className}`}
     >
         {children}
-    </div>
+    </motion.div>
 );
 
-export default function SwissGridOmniPredict() {
+export default function EnhancedSwissGridOmniPredict() {
     const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        document.documentElement.style.scrollBehavior = "smooth";
+        return () => {
+            document.documentElement.style.scrollBehavior = "auto";
+        };
+    }, []);
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -70,15 +84,18 @@ export default function SwissGridOmniPredict() {
         return () => ctx.revert();
     }, []);
 
-    const { ready, authenticated, login, logout, user, linkGoogle } =
-        usePrivy();
+    const { ready, authenticated, login, logout } = usePrivy();
     const { wallets } = useWallets();
 
     function LogoutButton() {
         const disableLogout = !ready || (ready && !authenticated);
 
         return (
-            <button disabled={disableLogout} onClick={logout}>
+            <button
+                disabled={disableLogout}
+                onClick={logout}
+                className="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
                 Log out
             </button>
         );
@@ -88,79 +105,94 @@ export default function SwissGridOmniPredict() {
         const disableLogin = !ready || (ready && authenticated);
 
         return (
-            <button disabled={disableLogin} onClick={login}>
+            <button
+                disabled={disableLogin}
+                onClick={login}
+                className="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
                 Log in
             </button>
         );
     }
-    console.log("Wallets", wallets);
 
     return (
         <div
             ref={containerRef}
-            className="min-h-screen bg-black text-white font-sans"
+            className="min-h-screen bg-black text-white font-sans relative overflow-hidden"
         >
-            <header className="fixed top-0 left-0 right-0 z-50 bg-black">
-                <nav className="container mx-auto px-4 py-4 grid grid-cols-12 gap-4 items-center">
-                    <h1 className="text-2xl font-bold col-span-3">
-                        OMNI.PREDICT
-                    </h1>
-                    <ul className="col-span-9 flex justify-end space-x-6 uppercase text-sm">
-                        <li>
+            <Particles />
+            <header className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 backdrop-blur-md">
+                <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
+                    <h1 className="text-2xl font-bold">OMNI.PREDICT</h1>
+                    <div className="flex items-center space-x-6">
+                        <ul className="hidden md:flex space-x-6 uppercase text-sm items-center">
+                            <li>
+                                <a
+                                    href="#about"
+                                    className="hover:text-secondary transition-colors"
+                                >
+                                    About
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="#features"
+                                    className="hover:text-secondary transition-colors"
+                                >
+                                    Features
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="#how-it-works"
+                                    className="hover:text-secondary transition-colors"
+                                >
+                                    How It Works
+                                </a>
+                            </li>
+                        </ul>
+                        <div className="flex space-x-4">
                             <LoginButton />
                             <LogoutButton />
-                            <a
-                                href="#about"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                About
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#features"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                Features
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#how-it-works"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                How It Works
-                            </a>
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                 </nav>
             </header>
 
-            <main className="pt-16">
+            <main className="pt-8">
                 <section
                     id="hero"
-                    className="min-h-screen grid grid-cols-12 gap-4 items-center px-4 parallax-section"
+                    className="min-h-screen grid grid-cols-12 gap-4 items-center px-4 parallax-section -mt-8"
                 >
                     <div className="col-span-12 md:col-span-8">
-                        <h2
-                            className="text-8xl font-bold mb-6 leading-tight uppercase parallax-text"
+                        <motion.h2
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 1, delay: 0.5 }}
+                            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight uppercase parallax-text"
                             data-speed="0.1"
                         >
                             Decentralized Opinion Markets
-                        </h2>
-                        <p
-                            className="text-xl mb-8 parallax-text"
+                        </motion.h2>
+                        <motion.p
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 1, delay: 0.7 }}
+                            className="text-lg md:text-xl mb-8 parallax-text"
                             data-speed="0.2"
                         >
                             Secure. Transparent. Verifiable.{" "}
                             <span className="text-secondary">Cross-Chain.</span>
-                        </p>
+                        </motion.p>
                     </div>
                 </section>
 
                 <section id="about" className="py-20 px-4">
                     <div className="container mx-auto grid grid-cols-12 gap-4">
-                        <GridItem className="col-span-12 md:col-span-6 fade-in">
+                        <GridItem
+                            className="col-span-12 md:col-span-6 fade-in"
+                            delay={0.2}
+                        >
                             <h3 className="text-4xl font-bold mb-4 uppercase">
                                 About Omni.predict
                             </h3>
@@ -172,7 +204,10 @@ export default function SwissGridOmniPredict() {
                                 across multiple blockchain networks.
                             </p>
                         </GridItem>
-                        <GridItem className="col-span-12 md:col-span-6 fade-in">
+                        <GridItem
+                            className="col-span-12 md:col-span-6 fade-in"
+                            delay={0.4}
+                        >
                             <h4 className="text-2xl font-bold mb-4 uppercase">
                                 Our Mission
                             </h4>
@@ -195,7 +230,10 @@ export default function SwissGridOmniPredict() {
                             Key Features
                         </h3>
                         <div className="grid grid-cols-12 gap-4">
-                            <GridItem className="col-span-12 md:col-span-4 fade-in">
+                            <GridItem
+                                className="col-span-12 md:col-span-4 fade-in"
+                                delay={0.2}
+                            >
                                 <h4 className="text-2xl font-bold mb-4 uppercase">
                                     Cross-Chain Voting
                                 </h4>
@@ -206,7 +244,10 @@ export default function SwissGridOmniPredict() {
                                     ensuring wide accessibility and flexibility.
                                 </p>
                             </GridItem>
-                            <GridItem className="col-span-12 md:col-span-4 fade-in">
+                            <GridItem
+                                className="col-span-12 md:col-span-4 fade-in"
+                                delay={0.4}
+                            >
                                 <h4 className="text-2xl font-bold mb-4 uppercase">
                                     FHE Encryption
                                 </h4>
@@ -217,7 +258,10 @@ export default function SwissGridOmniPredict() {
                                     across different blockchains.
                                 </p>
                             </GridItem>
-                            <GridItem className="col-span-12 md:col-span-4 fade-in">
+                            <GridItem
+                                className="col-span-12 md:col-span-4 fade-in"
+                                delay={0.6}
+                            >
                                 <h4 className="text-2xl font-bold mb-4 uppercase">
                                     Verifiable Opinions
                                 </h4>
@@ -238,7 +282,10 @@ export default function SwissGridOmniPredict() {
                             How It Works
                         </h3>
                         <div className="grid grid-cols-12 gap-4">
-                            <GridItem className="col-span-12 md:col-span-4 fade-in">
+                            <GridItem
+                                className="col-span-12 md:col-span-4 fade-in"
+                                delay={0.2}
+                            >
                                 <h4 className="text-2xl font-bold mb-4 uppercase">
                                     1. Connect
                                 </h4>
@@ -249,7 +296,10 @@ export default function SwissGridOmniPredict() {
                                     participate from your preferred network.
                                 </p>
                             </GridItem>
-                            <GridItem className="col-span-12 md:col-span-4 fade-in">
+                            <GridItem
+                                className="col-span-12 md:col-span-4 fade-in"
+                                delay={0.4}
+                            >
                                 <h4 className="text-2xl font-bold mb-4 uppercase">
                                     2. Vote
                                 </h4>
@@ -260,7 +310,10 @@ export default function SwissGridOmniPredict() {
                                     is protected across all networks.
                                 </p>
                             </GridItem>
-                            <GridItem className="col-span-12 md:col-span-4 fade-in">
+                            <GridItem
+                                className="col-span-12 md:col-span-4 fade-in"
+                                delay={0.6}
+                            >
                                 <h4 className="text-2xl font-bold mb-4 uppercase">
                                     3. Verify
                                 </h4>
