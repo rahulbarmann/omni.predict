@@ -13,7 +13,7 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { fetchMarkets, voteeYes, voteMarket, voteYes } from "../services/fhe";
+import { fetchMarkets, voteeNo, voteeYes, voteMarket } from "../services/fhe";
 import { chainList } from "../utils/supportedChains";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useCCTPTransfer } from "../services/cctp";
@@ -175,6 +175,8 @@ function parseProposalsToMarkets(rawData: any, chain: any, sourceUrls: any) {
             chain: chain || "Unknown Chain",
             yesPercentage,
             noPercentage,
+            yesPrice,
+            noPrice,
             sourceUrl: sourceUrls?.[index] || "No Source URL",
         };
     });
@@ -304,6 +306,25 @@ export default function MarketsPage() {
             }
             await handleTransfer(totalCost);
             await voteeYes(proposalId, numberOfShares);
+            // const res = await fetchBtcUsd(connectedWallet);
+            // console.log("Price: ", res);
+            console.log("Voting completed successfully");
+        } catch (error) {
+            console.error("Voting failed:", error);
+        }
+    }
+
+    async function handleNoVote(
+        totalCost: string,
+        proposalId: any,
+        numberOfShares: any
+    ) {
+        try {
+            if (!connectedWallet) {
+                throw new Error("No wallet connected");
+            }
+            await handleTransfer(totalCost);
+            await voteeNo(proposalId, numberOfShares);
             // const res = await fetchBtcUsd(connectedWallet);
             // console.log("Price: ", res);
             console.log("Voting completed successfully");
