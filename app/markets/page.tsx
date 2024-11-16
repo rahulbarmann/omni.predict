@@ -143,6 +143,41 @@ const MarketCard = ({
     );
 };
 
+function parseProposalsToMarkets(rawData: any, chain: any, sourceUrls: any) {
+    if (
+        !rawData ||
+        !rawData.descriptions ||
+        !Array.isArray(rawData.descriptions)
+    ) {
+        console.error(
+            "Invalid rawData: descriptions property is missing or not an array"
+        );
+        return [];
+    }
+
+    return rawData.descriptions.map((description: any, index: any) => {
+        const yesPriceRaw = rawData.currentYesPrices?.[index];
+        const noPriceRaw = rawData.currentNoPrices?.[index];
+        const yesPrice = yesPriceRaw ? parseInt(yesPriceRaw, 10) / 1e18 : 0;
+        const noPrice = noPriceRaw ? parseInt(noPriceRaw, 10) / 1e18 : 0;
+
+        const totalVotes = yesPrice + noPrice || 0;
+        const yesPercentage =
+            totalVotes > 0 ? Math.round((yesPrice / totalVotes) * 100) : 0;
+        const noPercentage = totalVotes > 0 ? 100 - yesPercentage : 0;
+
+        return {
+            id: index + 1,
+            title: description || "No Title",
+            votes: totalVotes,
+            chain: chain || "Unknown Chain",
+            yesPercentage,
+            noPercentage,
+            sourceUrl: sourceUrls?.[index] || "No Source URL",
+        };
+    });
+}
+
 export default function MarketsPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [selectedChain, setSelectedChain] = useState("All");
@@ -152,6 +187,7 @@ export default function MarketsPage() {
     const { ready, authenticated, login, logout, user, linkGoogle } =
         usePrivy();
     const { wallets } = useWallets();
+    const [market, setMarket] = useState([]);
 
     useEffect(() => {
         handleFetchMarkets();
@@ -210,6 +246,7 @@ export default function MarketsPage() {
         try {
             const res = await fetchMarkets();
             console.log(res);
+            setMarket(res);
             console.log("Markets Fetching completed successfully");
         } catch (error) {
             console.error("Fetching failed:", error);
@@ -228,71 +265,19 @@ export default function MarketsPage() {
         }
     }
 
-    const markets = [
-        {
-            id: 1,
-            title: "Will AI surpass human intelligence by 2030?",
-            description: "Vote on the future of artificial intelligence",
-            votes: 1234,
-            chain: "Ethereum",
-            yesPercentage: 65,
-            noPercentage: 35,
-            sourceUrl: "https://example.com/ai-intelligence-2030",
-        },
-        {
-            id: 2,
-            title: "Next US President 2024",
-            description: "Predict the outcome of the upcoming US election",
-            votes: 5678,
-            chain: "Polkadot",
-            yesPercentage: 48,
-            noPercentage: 52,
-            sourceUrl: "https://example.com/us-election-2024",
-        },
-        {
-            id: 3,
-            title: "Bitcoin price prediction for 2025",
-            description: "What will be the price of Bitcoin in 2025?",
-            votes: 9876,
-            chain: "Binance Smart Chain",
-            yesPercentage: 72,
-            noPercentage: 28,
-            sourceUrl: "https://example.com/bitcoin-price-2025",
-        },
-        {
-            id: 4,
-            title: "Mars colony by 2040?",
-            description:
-                "Will humans establish a permanent colony on Mars by 2040?",
-            votes: 3456,
-            chain: "Ethereum",
-            yesPercentage: 30,
-            noPercentage: 70,
-            sourceUrl: "https://example.com/mars-colony-2040",
-        },
-        {
-            id: 5,
-            title: "Quantum computing breakthrough",
-            description:
-                "Will a major quantum computing breakthrough occur in the next 5 years?",
-            votes: 7890,
-            chain: "Polkadot",
-            yesPercentage: 55,
-            noPercentage: 45,
-            sourceUrl: "https://example.com/quantum-computing-breakthrough",
-        },
-        {
-            id: 6,
-            title: "Global renewable energy adoption",
-            description:
-                "Predict the percentage of global energy from renewable sources by 2030",
-            votes: 2345,
-            chain: "Binance Smart Chain",
-            yesPercentage: 80,
-            noPercentage: 20,
-            sourceUrl: "https://example.com/renewable-energy-2030",
-        },
-    ];
+    const cleanedData = {
+        descriptions: market["0"] || [],
+        options: market["1"] || [],
+        endTimes: market["2"] || [],
+        currentYesPrices: market["3"] || [],
+        currentNoPrices: market["4"] || [],
+    };
+
+    const markets = parseProposalsToMarkets(
+        cleanedData,
+        "ethereum",
+        "https://youtube.com"
+    );
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -321,7 +306,7 @@ export default function MarketsPage() {
     const filteredMarkets =
         selectedChain === "All"
             ? markets
-            : markets.filter((market) => market.chain === selectedChain);
+            : markets.filter((market: any) => market.chain === selectedChain);
 
     const chains = ["All", "Ethereum", "Polkadot", "Binance Smart Chain"];
 
@@ -431,7 +416,7 @@ export default function MarketsPage() {
                     sdsds
                     <button onClick={handleYesVote}>Buy Yes</button>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredMarkets.map((market) => (
+                        {filteredMarkets.map((market: any) => (
                             <MarketCard
                                 key={market.id}
                                 title={market.title}
