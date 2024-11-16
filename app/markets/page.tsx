@@ -13,6 +13,7 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { fetchMarkets } from "../services/fhe";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -144,6 +145,20 @@ export default function MarketsPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [selectedChain, setSelectedChain] = useState("All");
     const [isChainMenuOpen, setIsChainMenuOpen] = useState(false);
+
+    useEffect(() => {
+        handleFetchMarkets();
+    }, []);
+
+    async function handleFetchMarkets() {
+        try {
+            const res = await fetchMarkets();
+            console.log(res);
+            console.log("Markets Fetching completed successfully");
+        } catch (error) {
+            console.error("Fetching failed:", error);
+        }
+    }
 
     const markets = [
         {
