@@ -5,7 +5,7 @@ import votingAbiJson from "@/lib/abi/fhe/voting.json";
 const votingAbi = votingAbiJson as AbiItem[];
 
 const NETWORK_CONFIG = {
-    contractAddress: "0xe7fca855ecf8801e57418574899b6471ac18ea92",
+    contractAddress: "0xAD81f0C42564D47B4d5856cF307a7722AF3c9c73",
     rpc: "https://api.helium.fhenix.zone",
 };
 
