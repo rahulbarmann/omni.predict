@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { fetchMarkets, voteMarket, voteYes } from "../services/fhe";
 import { chainList } from "../utils/supportedChains";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
+import { useCCTPTransfer } from "../services/cctp";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -192,6 +193,23 @@ export default function MarketsPage() {
     useEffect(() => {
         handleFetchMarkets();
     }, []);
+    const { initTxn } = useCCTPTransfer();
+
+    function mapConnectedToSourceChain() {
+        if (!connectedWallet) {
+            throw new Error("No wallet connected");
+        }
+        const chain = chainList.find(
+            (e) => e.chainId === Number(connectedWallet.chainId.split(":")[1])
+        )!;
+        if (chain.name === "sepolia") {
+            return "sepolia";
+        } else if (chain.name === "avalanche-testnet") {
+            return "avalanche-testnet";
+        } else {
+            return "optimism-sepolia";
+        }
+    }
 
     function CurrentChain() {
         const { ready, wallets } = useWallets();
@@ -206,15 +224,18 @@ export default function MarketsPage() {
         const connectedWallet = wallets.filter(
             (e) => e.address === authenticatedAddress
         );
+        console.log("connectedWallet", connectedWallet);
         setConnectedWallet(connectedWallet[0]);
         const chainId = connectedWallet[0]?.chainId.split(":")[1];
         const chain = chainList.filter(
             (e: any) => e.chainId === Number(chainId)
         );
+        console.log("chain", chain);
         const chainName = chainList.find(
             (e: any) =>
                 e.chainId === Number(connectedWallet[0]?.chainId.split(":")[1])
         )?.name;
+        console.log("chainName", chainName);
         return (
             <div>
                 {JSON.stringify(chain[0])}
@@ -241,6 +262,24 @@ export default function MarketsPage() {
             </div>
         );
     }
+
+    const handleTransfer = async () => {
+        try {
+            if (!connectedWallet) {
+                throw new Error("No wallet connected");
+            }
+            console.log("sadsd", mapConnectedToSourceChain());
+            await initTxn({
+                sourceChain: mapConnectedToSourceChain(),
+                amount: "1000000",
+                recipientAddress: "0x724B54D5E2118F4e5e3f4852f62b85cF4B69AE7F",
+                userWallet: connectedWallet,
+            });
+            console.log("Transfer completed successfully");
+        } catch (error) {
+            console.error("Transfer failed:", error);
+        }
+    };
 
     async function handleFetchMarkets() {
         try {
@@ -446,7 +485,9 @@ export default function MarketsPage() {
                         </ol>
                     </GridItem>
                 </section>
-
+                <button onClick={handleTransfer}>
+                    Click Me to Send 1 USDC (NEW)
+                </button>
                 <section className="container mx-auto">
                     <h3 className="text-2xl font-bold mb-6 fade-in">
                         Why Omni.predict?
