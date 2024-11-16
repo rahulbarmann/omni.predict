@@ -13,7 +13,7 @@ import { ConnectedWallet } from "@privy-io/react-auth";
 import { FhenixClient, EncryptedUint8, EncryptionTypes } from "fhenixjs";
 
 const NETWORK_CONFIG = {
-    contractAddress: "0x6A17c365E57BcaE74EfaF27d0A60AF809DFF86f5",
+    contractAddress: "0x1379C568D2566b060c403c4f089E1802bD854493",
     rpc: "https://api.nitrogen.fhenix.zone",
 };
 
@@ -245,5 +245,60 @@ export async function voteMarket(userWallet: ConnectedWallet) {
         console.log("Voting was successful:", voteTxReceipt.transactionHash);
     } catch (e) {
         console.log("Error:", e);
+    }
+}
+
+export async function voteeYes(proposalId: any, amount: any) {
+    try {
+        if (!process.env.BASE_PRIVATE_KEY) {
+            throw new Error("BASE_PRIVATE_KEY not found in env");
+        }
+        const baseWeb3 = new Web3("https://api.nitrogen.fhenix.zone");
+
+        const baseSigner = baseWeb3.eth.accounts.privateKeyToAccount(
+            process.env.BASE_PRIVATE_KEY
+        );
+        baseWeb3.eth.accounts.wallet.add(baseSigner);
+
+        const voteYesContractAddress = baseWeb3.utils.toChecksumAddress(
+            NETWORK_CONFIG.contractAddress
+        );
+
+        const voteYesContract = new baseWeb3.eth.Contract(
+            votingAbi,
+            voteYesContractAddress,
+            { from: baseSigner.address }
+        );
+
+        // Validate message bytes
+        // if (
+        //     typeof messageBytes !== "string" ||
+        //     !messageBytes.startsWith("0x")
+        // ) {
+        //     throw new Error("Invalid message bytes format");
+        // }
+
+        const buyYesTxGas = await voteYesContract.methods
+            .buyYesShares(proposalId, amount)
+            .estimateGas();
+
+        const buyYesTx = await voteYesContract.methods
+            .buyYesShares(proposalId, amount)
+            .send({ gas: Math.floor(buyYesTxGas * 1.2) });
+
+        console.log("Waiting for Buy transaction in Fhenix...");
+        const receiveTxReceipt = await waitForTransaction(
+            baseWeb3,
+            buyYesTx.transactionHash
+        );
+        if (!receiveTxReceipt) {
+            throw new Error("Buy transaction in Fhenix failed");
+        }
+        console.log(
+            "Buy transaction in Fhenix successful:",
+            receiveTxReceipt.transactionHash
+        );
+    } catch (e) {
+        console.log("Error: ", e);
     }
 }

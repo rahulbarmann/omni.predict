@@ -13,10 +13,11 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { fetchMarkets, voteMarket, voteYes } from "../services/fhe";
+import { fetchMarkets, voteeYes, voteMarket, voteYes } from "../services/fhe";
 import { chainList } from "../utils/supportedChains";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useCCTPTransfer } from "../services/cctp";
+import { fetchBtcUsd } from "../services/chainlinkFn";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -263,7 +264,7 @@ export default function MarketsPage() {
         );
     }
 
-    const handleTransfer = async () => {
+    const handleTransfer = async (totalCost: string) => {
         try {
             if (!connectedWallet) {
                 throw new Error("No wallet connected");
@@ -271,7 +272,7 @@ export default function MarketsPage() {
             console.log("sadsd", mapConnectedToSourceChain());
             await initTxn({
                 sourceChain: mapConnectedToSourceChain(),
-                amount: "1000000",
+                amount: totalCost,
                 recipientAddress: "0x724B54D5E2118F4e5e3f4852f62b85cF4B69AE7F",
                 userWallet: connectedWallet,
             });
@@ -292,12 +293,19 @@ export default function MarketsPage() {
         }
     }
 
-    async function handleYesVote() {
+    async function handleYesVote(
+        totalCost: string,
+        proposalId: any,
+        numberOfShares: any
+    ) {
         try {
             if (!connectedWallet) {
                 throw new Error("No wallet connected");
             }
-            await voteYes(connectedWallet, 0, 1);
+            await handleTransfer(totalCost);
+            await voteeYes(proposalId, numberOfShares);
+            // const res = await fetchBtcUsd(connectedWallet);
+            // console.log("Price: ", res);
             console.log("Voting completed successfully");
         } catch (error) {
             console.error("Voting failed:", error);
@@ -453,7 +461,9 @@ export default function MarketsPage() {
                     </div>
                     <CurrentChain />
                     sdsds
-                    <button onClick={handleYesVote}>Buy Yes</button>
+                    <button onClick={() => handleYesVote("1000000", 1, 2)}>
+                        Buy Yes
+                    </button>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredMarkets.map((market: any) => (
                             <MarketCard
@@ -485,7 +495,7 @@ export default function MarketsPage() {
                         </ol>
                     </GridItem>
                 </section>
-                <button onClick={handleTransfer}>
+                <button onClick={() => handleTransfer("1000000")}>
                     Click Me to Send 1 USDC (NEW)
                 </button>
                 <section className="container mx-auto">

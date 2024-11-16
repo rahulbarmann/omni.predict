@@ -1,37 +1,5 @@
 [
     {
-        "inputs": [],
-        "name": "InvalidShortString",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "SignerNotMessageSender",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "SignerNotOwner",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "string",
-                "name": "str",
-                "type": "string"
-            }
-        ],
-        "name": "StringTooLong",
-        "type": "error"
-    },
-    {
-        "anonymous": false,
-        "inputs": [],
-        "name": "EIP712DomainChanged",
-        "type": "event"
-    },
-    {
         "inputs": [
             {
                 "internalType": "uint256",
@@ -46,7 +14,7 @@
         ],
         "name": "buyNoShares",
         "outputs": [],
-        "stateMutability": "payable",
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -64,7 +32,7 @@
         ],
         "name": "buyYesShares",
         "outputs": [],
-        "stateMutability": "payable",
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -108,6 +76,38 @@
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidShortString",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "SignerNotMessageSender",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "SignerNotOwner",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "str",
+                "type": "string"
+            }
+        ],
+        "name": "StringTooLong",
+        "type": "error"
+    },
+    {
+        "anonymous": false,
+        "inputs": [],
+        "name": "EIP712DomainChanged",
+        "type": "event"
     },
     {
         "inputs": [],
@@ -238,22 +238,22 @@
                 "type": "uint256"
             },
             {
-                "internalType": "euint64",
+                "internalType": "euint128",
                 "name": "totalYesShares",
                 "type": "uint256"
             },
             {
-                "internalType": "euint64",
+                "internalType": "euint128",
                 "name": "totalNoShares",
                 "type": "uint256"
             },
             {
-                "internalType": "euint64",
+                "internalType": "euint128",
                 "name": "totalYesContributions",
                 "type": "uint256"
             },
             {
-                "internalType": "euint64",
+                "internalType": "euint128",
                 "name": "totalNoContributions",
                 "type": "uint256"
             }
