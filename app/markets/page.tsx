@@ -13,7 +13,9 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { fetchMarkets } from "../services/fhe";
+import { fetchMarkets, voteMarket, voteYes } from "../services/fhe";
+import { chainList } from "../utils/supportedChains";
+import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -145,10 +147,64 @@ export default function MarketsPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [selectedChain, setSelectedChain] = useState("All");
     const [isChainMenuOpen, setIsChainMenuOpen] = useState(false);
+    const [connectedWallet, setConnectedWallet] = useState<ConnectedWallet>();
+
+    const { ready, authenticated, login, logout, user, linkGoogle } =
+        usePrivy();
+    const { wallets } = useWallets();
 
     useEffect(() => {
         handleFetchMarkets();
     }, []);
+
+    function CurrentChain() {
+        const { ready, wallets } = useWallets();
+
+        const isDisabled = !ready || (ready && !authenticated);
+
+        if (isDisabled) {
+            return <></>;
+        }
+        const authenticatedAddress = user?.wallet?.address;
+
+        const connectedWallet = wallets.filter(
+            (e) => e.address === authenticatedAddress
+        );
+        setConnectedWallet(connectedWallet[0]);
+        const chainId = connectedWallet[0]?.chainId.split(":")[1];
+        const chain = chainList.filter(
+            (e: any) => e.chainId === Number(chainId)
+        );
+        const chainName = chainList.find(
+            (e: any) =>
+                e.chainId === Number(connectedWallet[0]?.chainId.split(":")[1])
+        )?.name;
+        return (
+            <div>
+                {JSON.stringify(chain[0])}
+                <br />
+                Switch Your Chain:
+                <select
+                    className="text-black"
+                    defaultValue={chainName}
+                    onChange={async (v) => {
+                        await connectedWallet[0].switchChain(
+                            Number(
+                                chainList.find(
+                                    (e: any) => e.name === v.target.value
+                                )?.chainId
+                            )
+                        );
+                    }}
+                >
+                    <option value="sepolia">Sepolia ETH</option>
+                    <option value="base-sepolia">Base Sepolia</option>
+                    <option value="avalanche-testnet">Avalanche Fuji</option>
+                    <option value="optimism-sepolia">Optimism Sepolia</option>
+                </select>
+            </div>
+        );
+    }
 
     async function handleFetchMarkets() {
         try {
@@ -157,6 +213,18 @@ export default function MarketsPage() {
             console.log("Markets Fetching completed successfully");
         } catch (error) {
             console.error("Fetching failed:", error);
+        }
+    }
+
+    async function handleYesVote() {
+        try {
+            if (!connectedWallet) {
+                throw new Error("No wallet connected");
+            }
+            await voteYes(connectedWallet, 0, 1);
+            console.log("Voting completed successfully");
+        } catch (error) {
+            console.error("Voting failed:", error);
         }
     }
 
@@ -309,7 +377,6 @@ export default function MarketsPage() {
                     </ul>
                 </nav>
             </header>
-
             <main className="pt-24 px-4">
                 <section className="container mx-auto mb-12">
                     <h2 className="text-6xl font-bold mb-8 fade-in">
@@ -360,6 +427,9 @@ export default function MarketsPage() {
                             )}
                         </div>
                     </div>
+                    <CurrentChain />
+                    sdsds
+                    <button onClick={handleYesVote}>Buy Yes</button>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredMarkets.map((market) => (
                             <MarketCard
@@ -427,7 +497,6 @@ export default function MarketsPage() {
                     </div>
                 </section>
             </main>
-
             <footer className="py-8 px-4 border-t border-white mt-12">
                 <div className="container mx-auto grid grid-cols-12 gap-4 items-center">
                     <p className="text-sm col-span-12 md:col-span-6">
