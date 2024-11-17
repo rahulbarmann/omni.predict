@@ -180,7 +180,8 @@ export default function EnhancedSwissGridOmniPredict() {
                             className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight uppercase parallax-text"
                             data-speed="0.1"
                         >
-                            Decentralized Opinion Markets
+                            Cross Chain, Encrypted, Decentralized Opinion
+                            Markets
                         </motion.h2>
                         <motion.p
                             initial={{ opacity: 0, y: 50 }}
