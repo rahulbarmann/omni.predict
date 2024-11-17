@@ -13,6 +13,13 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { fetchMarkets, voteeYes, voteeNo } from "../services/fhe";
 import { chainList } from "../utils/supportedChains";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
@@ -50,6 +57,8 @@ const MarketCard = ({
     noPercentage,
     sourceUrl,
     onVote,
+    currentYesPrice,
+    currentNoPrice,
 }: {
     title: string;
     description: string;
@@ -58,14 +67,17 @@ const MarketCard = ({
     yesPercentage: number;
     noPercentage: number;
     sourceUrl: string;
-    onVote: (vote: string) => void;
+    onVote: (vote: string, shares: number) => void;
+    currentYesPrice: string;
+    currentNoPrice: string;
 }) => {
     const [userVote, setUserVote] = useState<string | null>(null);
     const [isSourceOpen, setIsSourceOpen] = useState(false);
+    const [shares, setShares] = useState(1);
 
     const handleVote = (vote: string) => {
         setUserVote(vote);
-        onVote(vote);
+        onVote(vote, shares);
     };
 
     return (
@@ -73,15 +85,12 @@ const MarketCard = ({
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white text-black p-6 rounded-lg shadow-lg"
+            className="bg-white text-black p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
         >
             <h3 className="text-2xl font-bold mb-2">{title}</h3>
             <p className="text-gray-600 mb-4">{description}</p>
             <div className="flex justify-between items-center mb-4">
                 <span className="text-sm font-semibold">Votes: {votes}</span>
-                <span className="text-sm font-semibold bg-gray-200 px-2 py-1 rounded">
-                    {chain}
-                </span>
             </div>
             <div className="flex justify-between mb-2">
                 <div className="w-1/2 bg-green-200 rounded-l-full h-4">
@@ -101,6 +110,27 @@ const MarketCard = ({
                 <span>Yes: {yesPercentage}%</span>
                 <span>No: {noPercentage}%</span>
             </div>
+            <div className="flex justify-between items-center mb-4">
+                <Select
+                    value={shares.toString()}
+                    onValueChange={(value) => setShares(Number(value))}
+                >
+                    <SelectTrigger className="w-[180px] hover:bg-gray-100 transition-colors">
+                        <SelectValue placeholder="Select shares" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {[1, 2, 3, 4, 5].map((num) => (
+                            <SelectItem
+                                key={num}
+                                value={num.toString()}
+                                className="hover:bg-gray-100 transition-colors"
+                            >
+                                {num} {num === 1 ? "share" : "shares"}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
             <div className="flex justify-between">
                 <button
                     onClick={() => handleVote("yes")}
@@ -108,7 +138,7 @@ const MarketCard = ({
                         userVote === "yes"
                             ? "bg-green-500 text-white"
                             : "bg-gray-200 text-black"
-                    } transition-colors`}
+                    } transition-colors hover:opacity-80`}
                 >
                     Vote Yes
                 </button>
@@ -118,7 +148,7 @@ const MarketCard = ({
                         userVote === "no"
                             ? "bg-red-500 text-white"
                             : "bg-gray-200 text-black"
-                    } transition-colors`}
+                    } transition-colors hover:opacity-80`}
                 >
                     Vote No
                 </button>
@@ -138,7 +168,9 @@ const MarketCard = ({
                     </DialogHeader>
                     <div className="mt-4">
                         <a
-                            href={sourceUrl}
+                            href={
+                                "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+                            }
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center text-blue-500 hover:text-blue-700 transition-colors"
@@ -180,10 +212,14 @@ function parseProposalsToMarkets(rawData: any, chain: any, sourceUrls: any) {
             id: index + 1,
             title: description || "No Title",
             votes: totalVotes,
-            chain: chain || "Unknown Chain",
+            chain: chain,
             yesPercentage,
             noPercentage,
             sourceUrl: sourceUrls?.[index] || "No Source URL",
+            currentYesPrice:
+                yesPriceRaw * 10 * 10 * 10 ? yesPriceRaw.toString() : "0",
+            currentNoPrice:
+                noPriceRaw * 10 * 10 * 10 ? noPriceRaw.toString() : "0",
         };
     });
 }
@@ -335,36 +371,44 @@ export default function EnhancedMarketsPage() {
     }
 
     async function handleYesVote(
-        totalCost: string,
+        yesPrice: string,
         proposalId: any,
-        numberOfShares: any
+        numberOfShares: number
     ) {
         try {
             if (!connectedWallet) {
                 throw new Error("No wallet connected");
             }
+            const totalCost = (
+                BigInt(yesPrice) * BigInt(numberOfShares)
+            ).toString();
             await handleTransfer(totalCost);
             await voteeYes(proposalId, numberOfShares);
-            console.log("Voting completed successfully");
+            console.log(
+                `Voting YES completed successfully for ${numberOfShares} shares`
+            );
         } catch (error) {
             console.error("Voting failed:", error);
         }
     }
 
     async function handleNoVote(
-        totalCost: string,
+        noPrice: string,
         proposalId: any,
-        numberOfShares: any
+        numberOfShares: number
     ) {
         try {
             if (!connectedWallet) {
                 throw new Error("No wallet connected");
             }
+            const totalCost = (
+                BigInt(noPrice) * BigInt(numberOfShares)
+            ).toString();
             await handleTransfer(totalCost);
             await voteeNo(proposalId, numberOfShares);
-            // const res = await fetchBtcUsd(connectedWallet);
-            // console.log("Price: ", res);
-            console.log("Voting completed successfully");
+            console.log(
+                `Voting NO completed successfully for ${numberOfShares} shares`
+            );
         } catch (error) {
             console.error("Voting failed:", error);
         }
@@ -380,7 +424,7 @@ export default function EnhancedMarketsPage() {
 
     const markets = parseProposalsToMarkets(
         cleanedData,
-        "ethereum",
+        "",
         "https://youtube.com"
     );
 
@@ -388,8 +432,6 @@ export default function EnhancedMarketsPage() {
         selectedChain === "All"
             ? markets
             : markets.filter((market: any) => market.chain === selectedChain);
-
-    const chains = ["All", "Ethereum", "Polkadot", "Binance Smart Chain"];
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -467,49 +509,6 @@ export default function EnhancedMarketsPage() {
                 <section className="container mx-auto mb-12">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-2xl font-bold">Active Markets</h3>
-                        <div className="relative chain-dropdown z-50">
-                            <button
-                                onClick={() =>
-                                    setIsChainMenuOpen(!isChainMenuOpen)
-                                }
-                                className="px-4 py-2 bg-white text-black rounded flex items-center"
-                            >
-                                {selectedChain} <ChevronDown className="ml-2" />
-                            </button>
-                            <AnimatePresence>
-                                {isChainMenuOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                                    >
-                                        <div
-                                            className="py-1"
-                                            role="menu"
-                                            aria-orientation="vertical"
-                                            aria-labelledby="options-menu"
-                                        >
-                                            {chains.map((chain) => (
-                                                <button
-                                                    key={chain}
-                                                    onClick={() => {
-                                                        setSelectedChain(chain);
-                                                        setIsChainMenuOpen(
-                                                            false
-                                                        );
-                                                    }}
-                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                                                    role="menuitem"
-                                                >
-                                                    {chain}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
                     </div>
                     <CurrentChain />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -523,17 +522,19 @@ export default function EnhancedMarketsPage() {
                                 yesPercentage={market.yesPercentage}
                                 noPercentage={market.noPercentage}
                                 sourceUrl={market.sourceUrl}
-                                onVote={(vote) =>
+                                currentYesPrice={market.currentYesPrice + "000"}
+                                currentNoPrice={market.currentNoPrice + "000"}
+                                onVote={(vote, shares) =>
                                     vote === "yes"
                                         ? handleYesVote(
-                                              "1000000",
+                                              market.currentYesPrice + "000",
                                               market.id - 1,
-                                              1
+                                              shares
                                           )
                                         : handleNoVote(
-                                              "1000000",
+                                              market.currentNoPrice + "000",
                                               market.id - 1,
-                                              1
+                                              shares
                                           )
                                 }
                             />

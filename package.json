@@ -14,6 +14,7 @@
     "@circle-fin/user-controlled-wallets": "^5.0.0",
     "@privy-io/react-auth": "^1.94.2",
     "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.0",
     "@solana/web3.js": "^1.95.4",
     "class-variance-authority": "^0.7.0",
