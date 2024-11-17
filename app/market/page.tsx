@@ -19,6 +19,7 @@ import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useCCTPTransfer } from "../services/cctp";
 import { fetchBtcUsd } from "../services/chainlinkFn";
 import { Particles } from "../Particles";
+import { useRouter } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -197,8 +198,13 @@ export default function EnhancedMarketsPage() {
     const { ready, authenticated, login, logout, user } = usePrivy();
     const { wallets } = useWallets();
     const [market, setMarket] = useState([]);
+    const router = useRouter();
 
     const { initTxn } = useCCTPTransfer();
+
+    if (ready && !authenticated) {
+        router.push("/");
+    }
 
     useEffect(() => {
         handleFetchMarkets();
@@ -406,227 +412,264 @@ export default function EnhancedMarketsPage() {
     }, []);
 
     return (
-        <div
-            ref={containerRef}
-            className="min-h-screen bg-black text-white font-sans relative overflow-hidden"
-        >
-            <Particles />
-            <header className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 backdrop-blur-md">
-                <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">OMNI.PREDICT</h1>
-                    <ul className="flex space-x-6 uppercase text-sm">
-                        <li>
-                            <a
-                                href="#"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                Home
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                Markets
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                About
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </header>
-            <main className="pt-24 px-4">
-                <section className="container mx-auto mb-12">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1, delay: 0.5 }}
-                        className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 fade-in"
+        <>
+            {!ready ? (
+                <></>
+            ) : (
+                <>
+                    <div
+                        ref={containerRef}
+                        className="min-h-screen bg-black text-white font-sans relative overflow-hidden"
                     >
-                        Opinion Markets
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1, delay: 0.7 }}
-                        className="text-xl mb-8 fade-in"
-                    >
-                        Explore and vote on cross-chain opinion markets. Your
-                        votes are secured with Fully Homomorphic Encryption
-                        (FHE).
-                    </motion.p>
-                </section>
-
-                <section className="container mx-auto mb-12">
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-2xl font-bold">Active Markets</h3>
-                        <div className="relative chain-dropdown z-50">
-                            <button
-                                onClick={() =>
-                                    setIsChainMenuOpen(!isChainMenuOpen)
-                                }
-                                className="px-4 py-2 bg-white text-black rounded flex items-center"
-                            >
-                                {selectedChain} <ChevronDown className="ml-2" />
-                            </button>
-                            <AnimatePresence>
-                                {isChainMenuOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                                    >
-                                        <div
-                                            className="py-1"
-                                            role="menu"
-                                            aria-orientation="vertical"
-                                            aria-labelledby="options-menu"
+                        <Particles />
+                        <header className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 backdrop-blur-md">
+                            <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
+                                <a href="/">
+                                    <h1 className="text-2xl font-bold">
+                                        OMNI.PREDICT
+                                    </h1>
+                                </a>
+                                <ul className="flex space-x-6 uppercase text-sm">
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="hover:text-secondary transition-colors"
                                         >
-                                            {chains.map((chain) => (
-                                                <button
-                                                    key={chain}
-                                                    onClick={() => {
-                                                        setSelectedChain(chain);
-                                                        setIsChainMenuOpen(
-                                                            false
-                                                        );
+                                            Home
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="hover:text-secondary transition-colors"
+                                        >
+                                            Markets
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="hover:text-secondary transition-colors"
+                                        >
+                                            About
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </header>
+                        <main className="pt-24 px-4">
+                            <section className="container mx-auto mb-12">
+                                <motion.h2
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1, delay: 0.5 }}
+                                    className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 fade-in"
+                                >
+                                    Opinion Markets
+                                </motion.h2>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1, delay: 0.7 }}
+                                    className="text-xl mb-8 fade-in"
+                                >
+                                    Explore and vote on cross-chain opinion
+                                    markets. Your votes are secured with Fully
+                                    Homomorphic Encryption (FHE).
+                                </motion.p>
+                            </section>
+
+                            <section className="container mx-auto mb-12">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h3 className="text-2xl font-bold">
+                                        Active Markets
+                                    </h3>
+                                    <div className="relative chain-dropdown z-50">
+                                        <button
+                                            onClick={() =>
+                                                setIsChainMenuOpen(
+                                                    !isChainMenuOpen
+                                                )
+                                            }
+                                            className="px-4 py-2 bg-white text-black rounded flex items-center"
+                                        >
+                                            {selectedChain}{" "}
+                                            <ChevronDown className="ml-2" />
+                                        </button>
+                                        <AnimatePresence>
+                                            {isChainMenuOpen && (
+                                                <motion.div
+                                                    initial={{
+                                                        opacity: 0,
+                                                        y: -10,
                                                     }}
-                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                                                    role="menuitem"
+                                                    animate={{
+                                                        opacity: 1,
+                                                        y: 0,
+                                                    }}
+                                                    exit={{
+                                                        opacity: 0,
+                                                        y: -10,
+                                                    }}
+                                                    className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
                                                 >
-                                                    {chain}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    </div>
-                    <CurrentChain />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredMarkets.map((market: any) => (
-                            <MarketCard
-                                key={market.id}
-                                title={market.title}
-                                description={market.description}
-                                votes={market.votes}
-                                chain={market.chain}
-                                yesPercentage={market.yesPercentage}
-                                noPercentage={market.noPercentage}
-                                sourceUrl={market.sourceUrl}
-                                onVote={(vote) =>
-                                    vote === "yes"
-                                        ? handleYesVote(
-                                              "1000000",
-                                              market.id - 1,
-                                              1
-                                          )
-                                        : handleNoVote(
-                                              "1000000",
-                                              market.id - 1,
-                                              1
-                                          )
-                                }
-                            />
-                        ))}
-                    </div>
-                </section>
+                                                    <div
+                                                        className="py-1"
+                                                        role="menu"
+                                                        aria-orientation="vertical"
+                                                        aria-labelledby="options-menu"
+                                                    >
+                                                        {chains.map((chain) => (
+                                                            <button
+                                                                key={chain}
+                                                                onClick={() => {
+                                                                    setSelectedChain(
+                                                                        chain
+                                                                    );
+                                                                    setIsChainMenuOpen(
+                                                                        false
+                                                                    );
+                                                                }}
+                                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                                                role="menuitem"
+                                                            >
+                                                                {chain}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                </div>
+                                <CurrentChain />
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredMarkets.map((market: any) => (
+                                        <MarketCard
+                                            key={market.id}
+                                            title={market.title}
+                                            description={market.description}
+                                            votes={market.votes}
+                                            chain={market.chain}
+                                            yesPercentage={market.yesPercentage}
+                                            noPercentage={market.noPercentage}
+                                            sourceUrl={market.sourceUrl}
+                                            onVote={(vote) =>
+                                                vote === "yes"
+                                                    ? handleYesVote(
+                                                          "1000000",
+                                                          market.id - 1,
+                                                          1
+                                                      )
+                                                    : handleNoVote(
+                                                          "1000000",
+                                                          market.id - 1,
+                                                          1
+                                                      )
+                                            }
+                                        />
+                                    ))}
+                                </div>
+                            </section>
 
-                <section className="container mx-auto mb-12">
-                    <GridItem className="fade-in">
-                        <h3 className="text-2xl font-bold mb-4 uppercase">
-                            How It Works
-                        </h3>
-                        <ol className="list-decimal list-inside space-y-2">
-                            <li>Connect your preferred blockchain wallet</li>
-                            <li>Browse and select an opinion market</li>
-                            <li>Cast your vote securely with FHE</li>
-                            <li>
-                                Verify the authenticity of opinions and results
-                            </li>
-                        </ol>
-                    </GridItem>
-                </section>
+                            <section className="container mx-auto mb-12">
+                                <GridItem className="fade-in">
+                                    <h3 className="text-2xl font-bold mb-4 uppercase">
+                                        How It Works
+                                    </h3>
+                                    <ol className="list-decimal list-inside space-y-2">
+                                        <li>
+                                            Connect your preferred blockchain
+                                            wallet
+                                        </li>
+                                        <li>
+                                            Browse and select an opinion market
+                                        </li>
+                                        <li>
+                                            Cast your vote securely with FHE
+                                        </li>
+                                        <li>
+                                            Verify the authenticity of opinions
+                                            and results
+                                        </li>
+                                    </ol>
+                                </GridItem>
+                            </section>
 
-                <section className="container mx-auto">
-                    <h3 className="text-2xl font-bold mb-6 fade-in">
-                        Why Omni.predict?
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <GridItem className="fade-in" delay={0.2}>
-                            <h4 className="text-xl font-bold mb-2">
-                                Cross-Chain Voting
-                            </h4>
-                            <p>
-                                Participate in markets across multiple
-                                blockchain networks
-                            </p>
-                        </GridItem>
-                        <GridItem className="fade-in" delay={0.4}>
-                            <h4 className="text-xl font-bold mb-2">
-                                FHE Security
-                            </h4>
-                            <p>
-                                Your votes are protected by Fully Homomorphic
-                                Encryption
-                            </p>
-                        </GridItem>
-                        <GridItem className="fade-in" delay={0.6}>
-                            <h4 className="text-xl font-bold mb-2">
-                                Verifiable Results
-                            </h4>
-                            <p>
-                                Transparent and auditable voting process and
-                                outcomes
-                            </p>
-                        </GridItem>
+                            <section className="container mx-auto">
+                                <h3 className="text-2xl font-bold mb-6 fade-in">
+                                    Why Omni.predict?
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <GridItem className="fade-in" delay={0.2}>
+                                        <h4 className="text-xl font-bold mb-2">
+                                            Cross-Chain Voting
+                                        </h4>
+                                        <p>
+                                            Participate in markets across
+                                            multiple blockchain networks
+                                        </p>
+                                    </GridItem>
+                                    <GridItem className="fade-in" delay={0.4}>
+                                        <h4 className="text-xl font-bold mb-2">
+                                            FHE Security
+                                        </h4>
+                                        <p>
+                                            Your votes are protected by Fully
+                                            Homomorphic Encryption
+                                        </p>
+                                    </GridItem>
+                                    <GridItem className="fade-in" delay={0.6}>
+                                        <h4 className="text-xl font-bold mb-2">
+                                            Verifiable Results
+                                        </h4>
+                                        <p>
+                                            Transparent and auditable voting
+                                            process and outcomes
+                                        </p>
+                                    </GridItem>
+                                </div>
+                            </section>
+                        </main>
+                        <footer className="py-8 px-4 border-t border-white mt-12">
+                            <div className="container mx-auto grid grid-cols-12 gap-4 items-center">
+                                <p className="text-sm col-span-12 md:col-span-6">
+                                    &copy; 2024 Omni.predict. All rights
+                                    reserved.
+                                </p>
+                                <nav className="col-span-12 md:col-span-6">
+                                    <ul className="flex justify-end space-x-6 text-sm uppercase">
+                                        <li>
+                                            <a
+                                                href="#"
+                                                className="hover:text-secondary transition-colors"
+                                            >
+                                                Privacy Policy
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                href="#"
+                                                className="hover:text-secondary transition-colors"
+                                            >
+                                                Terms of Service
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                href="#"
+                                                className="hover:text-secondary transition-colors"
+                                            >
+                                                Contact
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </footer>
                     </div>
-                </section>
-            </main>
-            <footer className="py-8 px-4 border-t border-white mt-12">
-                <div className="container mx-auto grid grid-cols-12 gap-4 items-center">
-                    <p className="text-sm col-span-12 md:col-span-6">
-                        &copy; 2024 Omni.predict. All rights reserved.
-                    </p>
-                    <nav className="col-span-12 md:col-span-6">
-                        <ul className="flex justify-end space-x-6 text-sm uppercase">
-                            <li>
-                                <a
-                                    href="#"
-                                    className="hover:text-secondary transition-colors"
-                                >
-                                    Privacy Policy
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#"
-                                    className="hover:text-secondary transition-colors"
-                                >
-                                    Terms of Service
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#"
-                                    className="hover:text-secondary transition-colors"
-                                >
-                                    Contact
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </footer>
-        </div>
+                </>
+            )}
+        </>
     );
 }
