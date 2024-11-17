@@ -74,7 +74,7 @@ const waitForTransaction = async (
 
 const waitForAttestation = async (
     messageHash: string,
-    maxAttempts = 30
+    maxAttempts = 60
 ): Promise<string> => {
     let attempts = 0;
     while (attempts < maxAttempts) {

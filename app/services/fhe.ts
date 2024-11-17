@@ -13,7 +13,7 @@ import { ConnectedWallet } from "@privy-io/react-auth";
 import { FhenixClient, EncryptedUint8, EncryptionTypes } from "fhenixjs";
 
 const NETWORK_CONFIG = {
-    contractAddress: "0x1379C568D2566b060c403c4f089E1802bD854493",
+    contractAddress: "0xDc30B39a8FCaBD74a9E3611345955C959C0FEBBd",
     rpc: "https://api.nitrogen.fhenix.zone",
 };
 
