@@ -150,6 +150,14 @@ export default function EnhancedSwissGridOmniPredict() {
                                     How It Works
                                 </a>
                             </li>
+                            <li>
+                                <a
+                                    href="/market"
+                                    className="hover:text-secondary transition-colors"
+                                >
+                                    Markets
+                                </a>
+                            </li>
                         </ul>
                         <div className="flex space-x-4">
                             <LoginButton />

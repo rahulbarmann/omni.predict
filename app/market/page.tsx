@@ -26,6 +26,7 @@ import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useCCTPTransfer } from "../services/cctp";
 import { fetchBtcUsd } from "../services/chainlinkFn";
 import { Particles } from "../Particles";
+import { useRouter } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -233,8 +234,13 @@ export default function EnhancedMarketsPage() {
     const { ready, authenticated, login, logout, user } = usePrivy();
     const { wallets } = useWallets();
     const [market, setMarket] = useState([]);
+    const router = useRouter();
 
     const { initTxn } = useCCTPTransfer();
+
+    if (ready && !authenticated) {
+        router.push("/");
+    }
 
     useEffect(() => {
         handleFetchMarkets();
@@ -448,186 +454,215 @@ export default function EnhancedMarketsPage() {
     }, []);
 
     return (
-        <div
-            ref={containerRef}
-            className="min-h-screen bg-black text-white font-sans relative overflow-hidden"
-        >
-            <Particles />
-            <header className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 backdrop-blur-md">
-                <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">OMNI.PREDICT</h1>
-                    <ul className="flex space-x-6 uppercase text-sm">
-                        <li>
-                            <a
-                                href="#"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                Home
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                Markets
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#"
-                                className="hover:text-secondary transition-colors"
-                            >
-                                About
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </header>
-            <main className="pt-24 px-4">
-                <section className="container mx-auto mb-12">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1, delay: 0.5 }}
-                        className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 fade-in"
+        <>
+            {!ready ? (
+                <></>
+            ) : (
+                <>
+                    <div
+                        ref={containerRef}
+                        className="min-h-screen bg-black text-white font-sans relative overflow-hidden"
                     >
-                        Opinion Markets
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1, delay: 0.7 }}
-                        className="text-xl mb-8 fade-in"
-                    >
-                        Explore and vote on cross-chain opinion markets. Your
-                        votes are secured with Fully Homomorphic Encryption
-                        (FHE).
-                    </motion.p>
-                </section>
-
-                <section className="container mx-auto mb-12">
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-2xl font-bold">Active Markets</h3>
-                    </div>
-                    <CurrentChain />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredMarkets.map((market: any) => (
-                            <MarketCard
-                                key={market.id}
-                                title={market.title}
-                                description={market.description}
-                                votes={market.votes}
-                                chain={market.chain}
-                                yesPercentage={market.yesPercentage}
-                                noPercentage={market.noPercentage}
-                                sourceUrl={market.sourceUrl}
-                                currentYesPrice={market.currentYesPrice + "000"}
-                                currentNoPrice={market.currentNoPrice + "000"}
-                                onVote={(vote, shares) =>
-                                    vote === "yes"
-                                        ? handleYesVote(
-                                              market.currentYesPrice + "000",
-                                              market.id - 1,
-                                              shares
-                                          )
-                                        : handleNoVote(
-                                              market.currentNoPrice + "000",
-                                              market.id - 1,
-                                              shares
-                                          )
-                                }
-                            />
-                        ))}
-                    </div>
-                </section>
-
-                <section className="container mx-auto mb-12">
-                    <GridItem className="fade-in">
-                        <h3 className="text-2xl font-bold mb-4 uppercase">
-                            How It Works
-                        </h3>
-                        <ol className="list-decimal list-inside space-y-2">
-                            <li>Connect your preferred blockchain wallet</li>
-                            <li>Browse and select an opinion market</li>
-                            <li>Cast your vote securely with FHE</li>
-                            <li>
-                                Verify the authenticity of opinions and results
-                            </li>
-                        </ol>
-                    </GridItem>
-                </section>
-
-                <section className="container mx-auto">
-                    <h3 className="text-2xl font-bold mb-6 fade-in">
-                        Why Omni.predict?
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <GridItem className="fade-in" delay={0.2}>
-                            <h4 className="text-xl font-bold mb-2">
-                                Cross-Chain Voting
-                            </h4>
-                            <p>
-                                Participate in markets across multiple
-                                blockchain networks
-                            </p>
-                        </GridItem>
-                        <GridItem className="fade-in" delay={0.4}>
-                            <h4 className="text-xl font-bold mb-2">
-                                FHE Security
-                            </h4>
-                            <p>
-                                Your votes are protected by Fully Homomorphic
-                                Encryption
-                            </p>
-                        </GridItem>
-                        <GridItem className="fade-in" delay={0.6}>
-                            <h4 className="text-xl font-bold mb-2">
-                                Verifiable Results
-                            </h4>
-                            <p>
-                                Transparent and auditable voting process and
-                                outcomes
-                            </p>
-                        </GridItem>
-                    </div>
-                </section>
-            </main>
-            <footer className="py-8 px-4 border-t border-white mt-12">
-                <div className="container mx-auto grid grid-cols-12 gap-4 items-center">
-                    <p className="text-sm col-span-12 md:col-span-6">
-                        &copy; 2024 Omni.predict. All rights reserved.
-                    </p>
-                    <nav className="col-span-12 md:col-span-6">
-                        <ul className="flex justify-end space-x-6 text-sm uppercase">
-                            <li>
-                                <a
-                                    href="#"
-                                    className="hover:text-secondary transition-colors"
-                                >
-                                    Privacy Policy
+                        <Particles />
+                        <header className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 backdrop-blur-md">
+                            <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
+                                <a href="/">
+                                    <h1 className="text-2xl font-bold">
+                                        OMNI.PREDICT
+                                    </h1>
                                 </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#"
-                                    className="hover:text-secondary transition-colors"
+                                <ul className="flex space-x-6 uppercase text-sm">
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="hover:text-secondary transition-colors"
+                                        >
+                                            Home
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="hover:text-secondary transition-colors"
+                                        >
+                                            Markets
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="hover:text-secondary transition-colors"
+                                        >
+                                            About
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </header>
+                        <main className="pt-24 px-4">
+                            <section className="container mx-auto mb-12">
+                                <motion.h2
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1, delay: 0.5 }}
+                                    className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 fade-in"
                                 >
-                                    Terms of Service
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#"
-                                    className="hover:text-secondary transition-colors"
+                                    Opinion Markets
+                                </motion.h2>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1, delay: 0.7 }}
+                                    className="text-xl mb-8 fade-in"
                                 >
-                                    Contact
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </footer>
-        </div>
+                                    Explore and vote on cross-chain opinion
+                                    markets. Your votes are secured with Fully
+                                    Homomorphic Encryption (FHE).
+                                </motion.p>
+                            </section>
+
+                            <section className="container mx-auto mb-12">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h3 className="text-2xl font-bold">
+                                        Active Markets
+                                    </h3>
+                                </div>
+                                <CurrentChain />
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredMarkets.map((market: any) => (
+                                        <MarketCard
+                                            key={market.id}
+                                            title={market.title}
+                                            description={market.description}
+                                            votes={market.votes}
+                                            chain={market.chain}
+                                            yesPercentage={market.yesPercentage}
+                                            noPercentage={market.noPercentage}
+                                            sourceUrl={market.sourceUrl}
+                                            currentYesPrice={
+                                                market.currentYesPrice + "000"
+                                            }
+                                            currentNoPrice={
+                                                market.currentNoPrice + "000"
+                                            }
+                                            onVote={(vote, shares) =>
+                                                vote === "yes"
+                                                    ? handleYesVote(
+                                                          market.currentYesPrice +
+                                                              "000",
+                                                          market.id - 1,
+                                                          shares
+                                                      )
+                                                    : handleNoVote(
+                                                          market.currentNoPrice +
+                                                              "000",
+                                                          market.id - 1,
+                                                          shares
+                                                      )
+                                            }
+                                        />
+                                    ))}
+                                </div>
+                            </section>
+
+                            <section className="container mx-auto mb-12">
+                                <GridItem className="fade-in">
+                                    <h3 className="text-2xl font-bold mb-4 uppercase">
+                                        How It Works
+                                    </h3>
+                                    <ol className="list-decimal list-inside space-y-2">
+                                        <li>
+                                            Connect your preferred blockchain
+                                            wallet
+                                        </li>
+                                        <li>
+                                            Browse and select an opinion market
+                                        </li>
+                                        <li>
+                                            Cast your vote securely with FHE
+                                        </li>
+                                        <li>
+                                            Verify the authenticity of opinions
+                                            and results
+                                        </li>
+                                    </ol>
+                                </GridItem>
+                            </section>
+
+                            <section className="container mx-auto">
+                                <h3 className="text-2xl font-bold mb-6 fade-in">
+                                    Why Omni.predict?
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <GridItem className="fade-in" delay={0.2}>
+                                        <h4 className="text-xl font-bold mb-2">
+                                            Cross-Chain Voting
+                                        </h4>
+                                        <p>
+                                            Participate in markets across
+                                            multiple blockchain networks
+                                        </p>
+                                    </GridItem>
+                                    <GridItem className="fade-in" delay={0.4}>
+                                        <h4 className="text-xl font-bold mb-2">
+                                            FHE Security
+                                        </h4>
+                                        <p>
+                                            Your votes are protected by Fully
+                                            Homomorphic Encryption
+                                        </p>
+                                    </GridItem>
+                                    <GridItem className="fade-in" delay={0.6}>
+                                        <h4 className="text-xl font-bold mb-2">
+                                            Verifiable Results
+                                        </h4>
+                                        <p>
+                                            Transparent and auditable voting
+                                            process and outcomes
+                                        </p>
+                                    </GridItem>
+                                </div>
+                            </section>
+                        </main>
+                        <footer className="py-8 px-4 border-t border-white mt-12">
+                            <div className="container mx-auto grid grid-cols-12 gap-4 items-center">
+                                <p className="text-sm col-span-12 md:col-span-6">
+                                    &copy; 2024 Omni.predict. All rights
+                                    reserved.
+                                </p>
+                                <nav className="col-span-12 md:col-span-6">
+                                    <ul className="flex justify-end space-x-6 text-sm uppercase">
+                                        <li>
+                                            <a
+                                                href="#"
+                                                className="hover:text-secondary transition-colors"
+                                            >
+                                                Privacy Policy
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                href="#"
+                                                className="hover:text-secondary transition-colors"
+                                            >
+                                                Terms of Service
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                href="#"
+                                                className="hover:text-secondary transition-colors"
+                                            >
+                                                Contact
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </footer>
+                    </div>
+                </>
+            )}
+        </>
     );
 }
