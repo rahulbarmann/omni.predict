@@ -1,36 +1,11 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# omni.predict 🚀
 
-## Getting Started
+Empowering decentralized, end-to-end encrypted voting with FHE, cross-chain USDC transfers via Circle, and Chainlink for secure market result verification. Bridging chains and trust for private, fair, and transparent opinion markets. 🌐🔒💡
 
-First, run the development server:
+## Description
+This project is a decentralized prediction market platform that leverages Circle's CCTP (Cross-Chain Transfer Protocol) to facilitate the seamless transfer of USDC across multiple blockchains, ensuring an enhanced and secure user experience. Users can choose their preferred blockchain network to participate in the market, allowing for greater flexibility and accessibility. The platform integrates cutting-edge cryptographic techniques, specifically Fully Homomorphic Encryption (FHE), to protect user data and maintain privacy throughout the betting process.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Additionally, Chainlink Functions are employed to provide off-chain computational power for achieving consensus on market outcomes. These functions enable the platform to securely and accurately settle market events, ensuring that the final results are derived from trusted external data sources. By utilizing Chainlink Functions, the platform ensures the fairness and decentralization of the prediction market process, further enhancing the platform’s reliability and transparency.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## How it's Made
+This project uses Circle's CCTP to provide cross chain USDC transfers for voting on opinions on our markets, this enables users to use any major chain without worrying about where they have USDC, all the funds that are accumulated from our users is stored in a vault on Base, after each deposit, functions on our Fhenix contract are called, these functions are end-to-end encrypted ensuring user security and privacy, the prices are dynamically calculated for every share of votes making the market competitive and controlled completely by the users! We use Chainlink functions to validate our markets, the sources are public for any user to come and check them out and be assured on getting the right results, after the markets are resolved, Fhenix functions are called again which ensure that the right payouts will be given to the right addresses and the payouts are also dynamically distributed depending on how many shares of either vote a user bought! Now this will finally trigger the Circle CCTP protocol which will distribute the appropriate amount to the winners.
